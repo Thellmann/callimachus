@@ -27,7 +27,7 @@
     foaf:primaryTopic <PortableDocument>.
 
 <PortableDocument> a <Creatable>, owl:Class;
-    rdfs:subClassOf <File>;
+    rdfs:subClassOf <File>, calli:PortableDocument;
     rdfs:label "Portable Document" ;
     owl:equivalentClass </callimachus/Pdf>, </callimachus/1.0/types/Pdf>;
     rdfs:isDefinedBy <../../ontology>;
@@ -35,6 +35,7 @@
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/pdf.png>;
     calli:create <../templates/file-create.xhtml>;
+    calli:view <../templates/pdf-view.xhtml>;
     calli:mediaType "application/pdf".
 
 # GET /document.pdf
@@ -47,6 +48,39 @@
     calli:type "application/pdf";
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
+
+# GET /document.pdf?text
+:GetPageText rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PortableDocument>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "text";
+    calli:rel "alternate";
+    calli:requires calli:reader;
+    calli:type "text/plain";
+    calli:header "cache-control:cache-range".
+
+:page a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :GetPageText ;
+    rdfs:range xsd:string ;
+    calli:type "text/plain";
+    calli:query "text".
+
+# GET /document.pdf?thumbnail=page%3D1
+:GetThumbnail rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PortableDocument>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.awt.image.BufferedImage>];
+    calli:method "GET";
+    calli:query "thumbnail";
+    calli:requires calli:reader;
+    calli:type "image/png";
+    calli:header "cache-control:cache-range".
+
+:thumbnail a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :GetThumbnail ;
+    rdfs:range xsd:string ;
+    calli:type "text/plain";
+    calli:query "thumbnail".
 
 # POST ?create=/callimachus/Pdf
 :PostPdfCreate owl:intersectionOf (<creatable.ttl#PostCreate>
@@ -85,20 +119,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PortableDocument> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
-    calli:requires calli:editor;
-    calli:script """
-        var out = this.openOutputStream() ;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-        var read;
-        try {
-            while ((read = stream.read(buf)) >= 0) {
-                out.write(buf, 0, read);
-            }
-        } finally {
-            out.close();
-        }
-        this.touchRevision();
-    """.
+    calli:requires calli:editor.
 
 :stream a owl:DatatypeProperty, owl:FunctionalProperty ;
     rdfs:domain :PutPdf ;

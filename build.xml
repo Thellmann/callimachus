@@ -131,6 +131,9 @@
         <basename file="${dbcp.url}" property="dbcp.zip" />
         <basename file="${sacjava.url}" property="sacjava.zip" />
         <basename file="${cssparser.url}" property="cssparser.jar" />
+        <basename file="${fontbox.url}" property="fontbox.jar" />
+        <basename file="${jempbox.url}" property="jempbox.jar" />
+        <basename file="${pdfbox.url}" property="pdfbox.jar" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.present}" dest="${downloads}">
             <url url="${sesame.url}" />
@@ -151,6 +154,9 @@
             <url url="${dbcp.url}" />
             <url url="${sacjava.url}" />
             <url url="${cssparser.url}" />
+            <url url="${fontbox.url}" />
+            <url url="${jempbox.url}" />
+            <url url="${pdfbox.url}" />
         </get>
         <mkdir dir="${lib}" />
         <mkdir dir="${bin}" />
@@ -158,6 +164,9 @@
         <copy file="${downloads}/${mail.jar}" tofile="${lib}/${mail.jar}" />
         <copy file="${downloads}/${tagsoup.jar}" tofile="${lib}/${tagsoup.jar}" />
         <copy file="${downloads}/${cssparser.jar}" tofile="${lib}/${cssparser.jar}" />
+        <copy file="${downloads}/${fontbox.jar}" tofile="${lib}/${fontbox.jar}" />
+        <copy file="${downloads}/${jempbox.jar}" tofile="${lib}/${jempbox.jar}" />
+        <copy file="${downloads}/${pdfbox.jar}" tofile="${lib}/${pdfbox.jar}" />
         <unzip overwrite="false" src="${downloads}/${sacjava.zip}" dest="${lib}">
             <patternset>
                 <include name="**/*.jar" />

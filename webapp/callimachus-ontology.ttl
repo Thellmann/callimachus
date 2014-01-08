@@ -124,6 +124,7 @@ calli:ScriptBundle a owl:Class;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Page a owl:Class;
+    rdfs:subClassOf foaf:Document;
     rdfs:label "Page";
     rdfs:comment "A Callimachus XHTML page";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
@@ -152,8 +153,21 @@ calli:SqlDatasource a owl:Class;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:ZipArchive a owl:Class;
+    rdfs:subClassOf foaf:Document;
     rdfs:label "ZIP Archive";
     rdfs:comment "ZIP archive files";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:PortableDocument a owl:Class;
+    rdfs:subClassOf foaf:Document;
+    rdfs:label "Portable Document";
+    rdfs:comment "PDF file";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:PortableDocumentPage a owl:Class;
+    rdfs:subClassOf foaf:Document;
+    rdfs:label "Portable Document Page";
+    rdfs:comment "Single page in a PDF file";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################
@@ -566,5 +580,19 @@ calli:validationQuery a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:comment "SQL SELECT query to validate connections";
     rdfs:domain calli:SqlDatasource;
     rdfs:range xsd:string;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:hasPage a owl:ObjectProperty;
+    rdfs:label "has page";
+    rdfs:comment "Page of the document";
+    rdfs:domain calli:PortableDocument;
+    rdfs:range calli:PortableDocumentPage;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:pageNumber a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "page number";
+    rdfs:comment "Page position within the document (first page is page 1)";
+    rdfs:domain calli:PortableDocumentPage;
+    rdfs:range xsd:integer;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
