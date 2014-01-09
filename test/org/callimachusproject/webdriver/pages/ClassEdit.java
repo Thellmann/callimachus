@@ -27,12 +27,12 @@ public class ClassEdit extends CalliPage {
 	}
 
 	public TextEditor openCreateTemplate() {
-		browser.click(By.cssSelector("#create label.control-label a"));
+		browser.click(By.cssSelector("#create label a"));
 		browser.waitForScript();
-		browser.focusInFrame("create-template");
+		browser.focusInFrame("template-for-creating");
 		browser.waitForScript();
 		final ClassEdit edit = this;
-		return new TextEditor("create-template", browser) {
+		return new TextEditor("template-for-creating", browser) {
 			@Override
 			public ClassEdit saveAs(String name) {
 				super.saveAs(name);
@@ -43,12 +43,12 @@ public class ClassEdit extends CalliPage {
 	}
 
 	public TextEditor openViewTemplate() {
-		browser.click(By.cssSelector("#view label.control-label a"));
+		browser.click(By.cssSelector("#view label a"));
 		browser.waitForScript();
-		browser.focusInFrame("view-template");
+		browser.focusInFrame("template-for-viewing");
 		browser.waitForScript();
 		final ClassEdit edit = this;
-		return new TextEditor("view-template", browser) {
+		return new TextEditor("template-for-viewing", browser) {
 			@Override
 			public ClassEdit saveAs(String name) {
 				super.saveAs(name);
@@ -59,12 +59,12 @@ public class ClassEdit extends CalliPage {
 	}
 
 	public TextEditor openEditTemplate() {
-		browser.click(By.cssSelector("#edit label.control-label a"));
+		browser.click(By.cssSelector("#edit label a"));
 		browser.waitForScript();
-		browser.focusInFrame("edit-template");
+		browser.focusInFrame("template-for-editing");
 		browser.waitForScript();
 		final ClassEdit edit = this;
-		return new TextEditor("edit-template", browser) {
+		return new TextEditor("template-for-editing", browser) {
 			@Override
 			public ClassEdit saveAs(String name) {
 				super.saveAs(name);

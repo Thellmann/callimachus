@@ -11,7 +11,7 @@
 <xsl:key name="section" match="node()[not(name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6')]"
 use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'][1])"/>
 
-<xsl:key name="h1" match="xhtml:h1" use="generate-id(preceding::xhtml:head[1])"/>
+<xsl:key name="h1" match="xhtml:h1" use="generate-id(preceding::*[name()='head' or name()='h1'][1])"/>
 <xsl:key name="h2" match="xhtml:h2" use="generate-id(preceding::*[name()='head' or name()='h1'][1])"/>
 <xsl:key name="h3" match="xhtml:h3" use="generate-id(preceding::*[name()='head' or name()='h1' or name()='h2'][1])"/>
 <xsl:key name="h4" match="xhtml:h4" use="generate-id(preceding::*[name()='head' or name()='h1' or name()='h2' or name()='h3'][1])"/>
@@ -30,6 +30,9 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <!-- use template id instead -->
 <xsl:template match="@id|@xml:id" />
+
+<!-- ignore random styles -->
+<xsl:template match="@style" />
 
 <xsl:template match="@lang|@xml:lang">
     <xsl:attribute name="xml:lang">
@@ -75,9 +78,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
                 </xsl:attribute>
             </xsl:when>
         </xsl:choose>
-        <xsl:if test="not(xhtml:body/xhtml:h1)">
-            <title />
-        </xsl:if>
         <xsl:apply-templates select="xhtml:body"/>
     </article>
 </xsl:template>
@@ -90,9 +90,25 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <xsl:choose>
         <xsl:when test="not(*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'])">
             <!-- No sections if there are no heading elements (article without title nor sections)-->
+            <title />
             <xsl:apply-templates />
         </xsl:when>
+        <xsl:when test="'h1'=name(*[1])">
+            <xsl:apply-templates select="h1[1]/preceding-sibling::node()" />
+            <title><xsl:apply-templates select="xhtml:h1[1]/node()" /></title>
+            <xsl:if test="not(key('section', generate-id(xhtml:h1[1]))[self::*] or key('h2', generate-id(xhtml:h1[1])))">
+                <para />
+            </xsl:if>
+            <xsl:apply-templates select="key('section', generate-id(xhtml:h1[1]))" />
+            <xsl:apply-templates select="key('h6', generate-id(xhtml:h1[1]))" />
+            <xsl:apply-templates select="key('h5', generate-id(xhtml:h1[1]))" />
+            <xsl:apply-templates select="key('h4', generate-id(xhtml:h1[1]))" />
+            <xsl:apply-templates select="key('h3', generate-id(xhtml:h1[1]))" />
+            <xsl:apply-templates select="key('h2', generate-id(xhtml:h1[1]))" />
+            <xsl:apply-templates select="key('h1', generate-id(xhtml:h1[1]))" />
+        </xsl:when>
         <xsl:otherwise>
+            <title><xsl:apply-templates select="*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'][1]/node()" /></title>
             <xsl:apply-templates select="*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'][1]/preceding-sibling::node()" />
             <xsl:apply-templates select="key('h6', generate-id(/xhtml:html/xhtml:head))" />
             <xsl:apply-templates select="key('h5', generate-id(/xhtml:html/xhtml:head))" />
@@ -105,16 +121,20 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 </xsl:template>
 
 <xsl:template match="xhtml:h1">
-    <title><xsl:apply-templates /></title>
-    <xsl:if test="not(key('section', generate-id())[self::*] or key('h2', generate-id()))">
-        <para />
-    </xsl:if>
-    <xsl:apply-templates select="key('section', generate-id())" />
-    <xsl:apply-templates select="key('h6', generate-id())" />
-    <xsl:apply-templates select="key('h5', generate-id())" />
-    <xsl:apply-templates select="key('h4', generate-id())" />
-    <xsl:apply-templates select="key('h3', generate-id())" />
-    <xsl:apply-templates select="key('h2', generate-id())" />
+    <section>
+        <xsl:call-template name="id" />
+        <title><xsl:apply-templates /></title>
+        <xsl:if test="not(key('section', generate-id())[self::*] or key('h2', generate-id()))">
+            <para />
+        </xsl:if>
+        <xsl:apply-templates select="key('section', generate-id())" />
+        <xsl:apply-templates select="key('h6', generate-id())" />
+        <xsl:apply-templates select="key('h5', generate-id())" />
+        <xsl:apply-templates select="key('h4', generate-id())" />
+        <xsl:apply-templates select="key('h3', generate-id())" />
+        <xsl:apply-templates select="key('h2', generate-id())" />
+        <xsl:apply-templates select="key('h1', generate-id())" />
+    </section>
 </xsl:template>
 
 <xsl:template match="xhtml:h2">
@@ -276,17 +296,18 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 </xsl:template>
 
 <xsl:template match="xhtml:img">
+    <inlinemediaobject>
+        <xsl:call-template name="imageobject" />
+    </inlinemediaobject>
+</xsl:template>
+
+<xsl:template match="xhtml:body/xhtml:img">
     <figure>
+        <title><xsl:value-of select="@title" /></title>
         <mediaobject>
             <xsl:call-template name="imageobject" />
         </mediaobject>
     </figure>
-</xsl:template>
-
-<xsl:template match="xhtml:p/xhtml:img">
-    <inlinemediaobject>
-        <xsl:call-template name="imageobject" />
-    </inlinemediaobject>
 </xsl:template>
 
 <xsl:template match="xhtml:figure/xhtml:img|xhtml:p[@class='figure']/xhtml:img">
@@ -330,7 +351,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </xsl:if>
 </xsl:template>
 
-<xsl:template match="xhtml:img/@alt|xhtml:img/@title|xhtml:img/@border|xhtml:img/@style" />
+<xsl:template match="xhtml:img/@alt|xhtml:img/@title|xhtml:img/@border" />
 
 <xsl:template match="xhtml:img/@src">
     <xsl:attribute name="fileref">
@@ -354,18 +375,51 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </xsl:if>
 </xsl:template>
 
+<xsl:template match="xhtml:img/@style">
+    <xsl:if test="not(../@width) and contains(../@style, 'width:')">
+        <xsl:attribute name="contentwidth">
+            <xsl:value-of select="concat(substring-before(substring-after(../@style,'width:'),'px'),'px')" />
+        </xsl:attribute>
+    </xsl:if>
+    <xsl:if test="not(../@height) and contains(../@style, 'height:')">
+        <xsl:attribute name="contentdepth">
+            <xsl:value-of select="concat(substring-before(substring-after(../@style,'height:'),'px'),'px')" />
+        </xsl:attribute>
+    </xsl:if>
+</xsl:template>
+
 <xsl:template match="xhtml:img/@hspace">
+    <xsl:variable name="width">
+        <xsl:choose>
+            <xsl:when test="../@width">
+                <xsl:value-of select="../@width" />
+            </xsl:when>
+            <xsl:when test="contains(substring-after(../@style,'width:'),'px')">
+                <xsl:value-of select="substring-before(substring-after(../@style, 'width:'), 'px')" />
+            </xsl:when>
+        </xsl:choose>
+    </xsl:variable>
     <xsl:if test="string-length() &gt; 0">
         <xsl:attribute name="width">
-            <xsl:value-of select="concat(2 * number() + number(../@width),'px')" />
+            <xsl:value-of select="concat(2 * number() + number($width),'px')" />
         </xsl:attribute>
     </xsl:if>
 </xsl:template>
 
 <xsl:template match="xhtml:img/@vspace">
+    <xsl:variable name="height">
+        <xsl:choose>
+            <xsl:when test="../@height">
+                <xsl:value-of select="../@height" />
+            </xsl:when>
+            <xsl:when test="contains(substring-after(../@style,'height:'),'px')">
+                <xsl:value-of select="substring-before(substring-after(../@style, 'height:'), 'px')" />
+            </xsl:when>
+        </xsl:choose>
+    </xsl:variable>
     <xsl:if test="string-length() &gt; 0">
         <xsl:attribute name="depth">
-            <xsl:value-of select="concat(2 * number() + number(../@height),'px')" />
+            <xsl:value-of select="concat(2 * number() + number($height),'px')" />
         </xsl:attribute>
     </xsl:if>
 </xsl:template>
@@ -458,7 +512,8 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@lang" />
         <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="col" select="(xhtml:thead/xhtml:tr|xhtml:tbody/xhtml:tr)[1]/(xhtml:th|xhtml:td)" />
+        <xsl:apply-templates select="*[not(self::xhtml:col)]" />
     </informaltable>
 </xsl:template>
 
@@ -467,8 +522,31 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@lang" />
         <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
-        <xsl:apply-templates />
+        <xsl:apply-templates select="xhtml:caption" />
+        <xsl:apply-templates mode="col" select="(xhtml:thead/xhtml:tr|xhtml:tbody/xhtml:tr)[1]/(xhtml:th|xhtml:td)" />
+        <xsl:apply-templates select="*[not(self::xhtml:caption or self::xhtml:col)]" />
     </table>
+</xsl:template>
+
+<xsl:template match="xhtml:th|xhtml:td" mode="col">
+    <col>
+        <xsl:apply-templates select="@align|@char|@charoff|@valign|@width" />
+        <xsl:if test="@colspan">
+            <xsl:attribute name="span">
+                <xsl:value-of select="@colspan" />
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:if test="not(@width) and matches(@style, 'width:\s*\d+px')">
+            <xsl:attribute name="width">
+                <xsl:value-of select="replace(@style, '.*width:\s*(\d+)px.*', '$1')" />
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:if test="not(@width) and matches(@style, 'width:\s*\d+%')">
+            <xsl:attribute name="width">
+                <xsl:value-of select="replace(@style, '.*width:\s*(\d+%).*', '$1')" />
+            </xsl:attribute>
+        </xsl:if>
+    </col>
 </xsl:template>
 
 <!-- inline formatting -->

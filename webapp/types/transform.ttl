@@ -22,14 +22,14 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
-    foaf:primaryTopic <Transform>.
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <XslTransform>.
 
-<Transform> a <Creatable>, owl:Class;
+<XslTransform> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "Transform";
+    rdfs:label "XSL Transform";
     rdfs:comment "XSL transform files";
-    owl:equivalentClass </callimachus/Transform>;
+    owl:equivalentClass </callimachus/Transform>, </callimachus/1.0/types/Transform>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
@@ -37,24 +37,24 @@
     calli:view <../templates/text-view.xhtml>;
     calli:edit <../templates/transform-edit.xhtml>;
     calli:create <../templates/transform-create.xhtml>;
-    calli:mediaType "text/xsl";
+    calli:mediaType "application/xslt+xml";
     calli:documentTag <http://www.w3.org/1999/XSL/Transform#stylesheet>.
 
 # GET /transform.xsl
 :GetTransform rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "text/xsl";
+    calli:type "text/xsl", "application/xslt+xml";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";
-    calli:script "return this.openReader(true)".
+    calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Transform
 :CreateTransform owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <Transform> ]);
+        [owl:onProperty msg:target; owl:hasValue <XslTransform> ]);
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;
     calli:imports <java:org.callimachusproject.server.WebServer>;
@@ -76,21 +76,21 @@
         created = con.addDesignation(created, this.toString());
         created = con.addDesignation(created, Document);
 
-        created.UploadTransform(new org.callimachusproject.io.TextReader(body, "UTF-8"));
+        created.UploadTransform(body);
         return created;
     """.
 
 # PUT /transform.xsl
 :UploadTransform rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
         var read;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
-        var out = this.openWriter();
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var out = this.openOutputStream();
         try {
             while ((read = reader.read(buf)) >= 0) {
                 out.write(buf, 0, read);
@@ -108,11 +108,11 @@
 
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadTransform;
-    rdfs:range <java:java.io.Reader>;
-    calli:type "text/xsl".
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "text/xsl", "application/xslt+xml".
 
 :ValidateTransform rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:post "../schemas/xslt.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
 

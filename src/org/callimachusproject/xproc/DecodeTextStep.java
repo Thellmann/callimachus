@@ -93,60 +93,69 @@ public class DecodeTextStep implements XProcStep {
 
     public void run() throws SaxonApiException {
         try {
-	        String text = extractText(source.read());
-	        if ("base64".equals(encoding)) {
-	            if (charset == null) {
-	                throw XProcException.stepError(10);
-	            }
-	            byte[] decoded = Base64.decodeBase64(text);
-	            text = new String(decoded, charset);
-	        } else if ("base32".equals(encoding)) {
-	            if (charset == null) {
-	                throw XProcException.stepError(10);
-	            }
-	            byte[] decoded = new Base32().decode(text);
-	            text = new String(decoded, charset);
-	        } else if ("hex".equals(encoding)) {
-	            if (charset == null) {
-	                throw XProcException.stepError(10);
-	            }
-	            byte[] decoded = Hex.decodeHex(text.toCharArray());
-	            text = new String(decoded, charset);
-	        } else if ("binary".equals(encoding)) {
-	            if (charset == null) {
-	                throw XProcException.stepError(10);
-	            }
-	            byte[] decoded = BinaryCodec.fromAscii(text.toCharArray());
-	            text = new String(decoded, charset);
-	        } else if ("quoted-printable".equals(encoding)) {
-	            if (charset == null) {
-	                throw XProcException.stepError(10);
-	            }
-	            text = new QuotedPrintableCodec(charset).decode(text);
-	        } else if ("www-form-urlencoded".equals(encoding)) {
-	            if (charset == null) {
-	                throw XProcException.stepError(10);
-	            }
-	            text = new URLCodec(charset).decode(text);
-	        } else if (encoding != null && encoding.length() != 0) {
-	            throw new XProcException(step.getNode(), "Unexpected encoding: " + encoding);
-	        }
-
-			Document doc = DocumentFactory.newInstance().newDocument();
-			doc.setDocumentURI(doc.getBaseURI());
-			Element data = doc.createElementNS(XPROC_STEP, DATA);
-			data.setAttribute("content-type", contentType);
-			data.appendChild(doc.createTextNode(text));
-			doc.appendChild(data);
-	        result.write(runtime.getProcessor().newDocumentBuilder().wrap(doc));
+        	while (source.moreDocuments()) {
+		        String text = decodeText(source.read());
+	
+				Document doc = DocumentFactory.newInstance().newDocument();
+				doc.setDocumentURI(doc.getBaseURI());
+				Element data = doc.createElementNS(XPROC_STEP, DATA);
+				data.setAttribute("content-type", contentType);
+				data.appendChild(doc.createTextNode(text));
+				doc.appendChild(data);
+				result.write(runtime.getProcessor().newDocumentBuilder().wrap(doc));
+        	}
         } catch (ParserConfigurationException e) {
-			throw new XProcException(step.getNode(), e);
+			throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
         } catch (UnsupportedEncodingException uee) {
             throw XProcException.stepError(10, uee);
         } catch (DecoderException e) {
-            throw new XProcException(step.getNode(), e);
+            throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
 		}
     }
+
+	private String decodeText(XdmNode source_read)
+			throws UnsupportedEncodingException, DecoderException {
+		String text = extractText(source_read);
+		if ("base64".equals(encoding)) {
+		    if (charset == null) {
+		        throw XProcException.stepError(10);
+		    }
+		    byte[] decoded = Base64.decodeBase64(text);
+		    return new String(decoded, charset);
+		} else if ("base32".equals(encoding)) {
+		    if (charset == null) {
+		        throw XProcException.stepError(10);
+		    }
+		    byte[] decoded = new Base32().decode(text);
+		    return new String(decoded, charset);
+		} else if ("hex".equals(encoding)) {
+		    if (charset == null) {
+		        throw XProcException.stepError(10);
+		    }
+		    byte[] decoded = Hex.decodeHex(text.toCharArray());
+		    return new String(decoded, charset);
+		} else if ("binary".equals(encoding)) {
+		    if (charset == null) {
+		        throw XProcException.stepError(10);
+		    }
+		    byte[] decoded = BinaryCodec.fromAscii(text.toCharArray());
+		    return new String(decoded, charset);
+		} else if ("quoted-printable".equals(encoding)) {
+		    if (charset == null) {
+		        throw XProcException.stepError(10);
+		    }
+		    return new QuotedPrintableCodec(charset).decode(text);
+		} else if ("www-form-urlencoded".equals(encoding)) {
+		    if (charset == null) {
+		        throw XProcException.stepError(10);
+		    }
+		    return new URLCodec(charset).decode(text);
+		} else if (encoding != null && encoding.length() != 0) {
+		    throw new XProcException(step.getNode(), "Unexpected encoding: " + encoding);
+		} else {
+			return text;
+		}
+	}
 
     private String extractText(XdmNode doc) {
         StringBuilder content = new StringBuilder();

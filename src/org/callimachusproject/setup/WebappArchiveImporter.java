@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class WebappArchiveImporter {
 	private static final String GROUP_PUBLIC = "/auth/groups/public";
 	private static final String GROUP_SUPER = "/auth/groups/super";
-	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
+	private static final String SCHEMA_GRAPH = "types/RdfSchemaGraph";
 	private static final String REALM_TYPE = "types/Realm";
 	private static final String ORIGIN_TYPE = "types/Origin";
 	private static final String FOLDER_TYPE = "types/Folder";
@@ -72,11 +72,8 @@ public class WebappArchiveImporter {
 			throws IOException, OpenRDFException, NoSuchMethodException,
 			InvocationTargetException {
 		HttpHost host = URIUtils.extractHost(java.net.URI.create(webapp));
-		HttpClientFactory client = HttpClientFactory.getInstance();
 		UnavailableRequestDirector service = new UnavailableRequestDirector();
-		if (client.getProxy(host) == null) {
-			client.setProxy(host, service);
-		}
+		HttpClientFactory.getInstance().setProxyIfAbsent(host, service);
 		try {
 			if (schemaGraphs != null) {
 				for (URI schemaGraph : schemaGraphs) {
@@ -108,7 +105,7 @@ public class WebappArchiveImporter {
 				con.commit();
 			} finally {
 				con.close();
-				client.removeProxy(host, service);
+				HttpClientFactory.getInstance().removeProxy(host, service);
 			}
 		} finally {
 			repository.setCompileRepository(false);

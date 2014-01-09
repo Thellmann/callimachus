@@ -4,24 +4,7 @@
 // variables.less overrides
 // ----------------------------------------------------------------------------
 
-@baseFontSize:          1rem;
-@baseLineHeight:        @baseFontSize * 1.4;
-@inputHeight:           @baseLineHeight * 1.5; // height of .input-block-level, select, input[type="file"]
-
-@h1FontSize:            xx-large;
-@h2FontSize:            x-large;
-@h3FontSize:            large;
-@h4FontSize:            medium;
-@h5FontSize:            small;
-@h6FontSize:            x-small;
-
-@iconSpritePath:        "../images/glyphicons-halflings.png";
-@iconWhiteSpritePath:   "../images/glyphicons-halflings-white.png";
-
-@baseLineHeight: 1.25rem;
-@navbarHeight: 2.5rem;
-@searchHeight: 1.8rem;
-@largeNavbarHeight: @navbarHeight * 2;
+@navbar-large-height: @navbar-height * 2;
 
 
 // ----------------------------------------------------------------------------
@@ -29,37 +12,37 @@
 // ----------------------------------------------------------------------------
 
 // Font Settings
-@ffDefault: @sansFontFamily;
-@fsDefault: @sansFontFamily;
+@ffDefault: @font-family-sans-serif;
+@fsDefault: @font-family-sans-serif;
 
 // Header/Toolbar
-@bgColorHeader: @grayLighter;
-@borderColorHeader: @grayLight;
+@bgColorHeader: @gray-lighter;
+@borderColorHeader: @gray-light;
 @fcHeader: @gray;
 
 // Content
-@bgColorContent: @bodyBackground;
-@borderColorContent: @grayLight;
-@fcContent: @textColor;
+@bgColorContent: @body-bg;
+@borderColorContent: @gray-light;
+@fcContent: @text-color;
 
 // Clickable: default state
-@bgColorDefault: @grayLighter;
-@borderColorDefault: @grayLight;
+@bgColorDefault: @gray-lighter;
+@borderColorDefault: @gray-light;
 @fcDefault: @gray;
 
 // Clickable: hover state
-@bgColorHover: @grayLight;
+@bgColorHover: @gray-light;
 @borderColorHover: @gray;
-@fcHover: @grayDark;
+@fcHover: @gray-dark;
 
 // Clickable: active state
-@bgColorActive: @white;
-@borderColorActive: @grayLight;
-@fcActive: @grayDark;
+@bgColorActive: @body-bg;
+@borderColorActive: @gray-light;
+@fcActive: @gray-dark;
 
 // Error
-@borderColorError: @red;
-@fcError: @red;
+@borderColorError: @state-danger-border;
+@fcError: @state-danger-text;
 
-@bgImgUrlHeader: url("../images/ui-bg_highlight-soft_75_cccccc_1x100.png");
+@bgImgUrlHeader: url("../assets/jquery-ui/images/ui-bg_highlight-soft_75_cccccc_1x100.png");
 

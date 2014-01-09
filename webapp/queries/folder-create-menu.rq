@@ -1,5 +1,5 @@
 #
-# @Cache-Control: 
+# @Cache-Control: max-age=60
 # @view 
 #
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -8,7 +8,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 
 SELECT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
-    ?label ?comment ?icon (min(?m) AS ?menu) (min(?s) AS ?section)
+    ?label ?comment ?icon (substr(min(?order),2) AS ?author)
 WHERE {
     ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>;
         rdfs:label ?label;
@@ -16,28 +16,30 @@ WHERE {
         calli:icon ?icon;
         calli:create ?create
     FILTER (?create != <../templates/file-create.xhtml>)
-    {
-        ?cls calli:author </auth/groups/everyone>
-        BIND (1 AS ?m)
-        BIND (1 AS ?s)
-    } UNION {
-        ?cls calli:author </auth/groups/users>
-        BIND (1 AS ?m)
-        BIND (2 AS ?s)
-    } UNION {
-        ?cls calli:author </auth/groups/staff>
-        BIND (2 AS ?m)
-        BIND (3 AS ?s)
-    } UNION {
-        ?cls calli:author </auth/groups/power>
-        BIND (3 AS ?m)
-        BIND (4 AS ?s)
-    } UNION {
-        ?cls calli:author </auth/groups/admin>
-        BIND (3 AS ?m)
-        BIND (5 AS ?s)
-    } UNION {
-        BIND (3 AS ?m)
-        BIND (6 AS ?s)
+    FILTER EXISTS {
+        ?cls calli:author ?domain
+        {
+            FILTER (?domain = <$user>)
+        } UNION {
+            ?domain calli:member <$user>
+        } UNION {
+            ?domain calli:everyoneFrom []
+        } UNION {
+            ?domain calli:anonymousFrom []
+        }
     }
-} GROUP BY ?cls ?label ?comment ?icon ORDER BY ?menu ?section ?label
+    ?cls calli:author ?group .
+    ?group rdfs:label ?author .
+    BIND (
+        concat(
+            if (?group = </auth/groups/everyone>, "1",
+            if (?group = </auth/groups/users>, "2",
+            if (?group = </auth/groups/staff>, "3",
+            if (?group = </auth/groups/power>, "4",
+            if (?group = </auth/groups/admin>, "5",
+            "6"
+            ))))),
+            ?author
+        ) AS ?order
+    )
+} GROUP BY ?cls ?label ?comment ?icon ORDER BY asc(min(?order)) ?author ?label

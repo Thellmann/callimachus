@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.cache.ResourceFactory;
 import org.apache.http.client.config.RequestConfig;
@@ -41,6 +42,7 @@ import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.Version;
 import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.util.MailProperties;
+import org.callimachusproject.util.SystemProperties;
 
 /**
  * Manages the connections and cache entries for outgoing requests.
@@ -115,7 +117,18 @@ public class HttpClientFactory implements Closeable {
 		connManager.setDefaultMaxPerRoute(max);
 		connManager.setMaxTotal(2 * max);
 		reuseStrategy = DefaultConnectionReuseStrategy.INSTANCE;
-		keepAliveStrategy = DefaultConnectionKeepAliveStrategy.INSTANCE;
+		keepAliveStrategy = new ConnectionKeepAliveStrategy() {
+			private final long KEEPALIVE = SystemProperties.getClientKeepAliveTimeout();
+			private ConnectionKeepAliveStrategy delegate = DefaultConnectionKeepAliveStrategy.INSTANCE;
+
+			public long getKeepAliveDuration(HttpResponse response,
+					HttpContext context) {
+				long ret = delegate.getKeepAliveDuration(response, context);
+				if (ret > 0)
+					return ret;
+				return KEEPALIVE;
+			}
+		};
 	}
 
 	public synchronized void close() {
@@ -129,6 +142,11 @@ public class HttpClientFactory implements Closeable {
 	public synchronized ClientExecChain setProxy(HttpHost destination,
 			ClientExecChain proxy) {
 		return decorator.setProxy(destination, proxy);
+	}
+
+	public synchronized ClientExecChain setProxyIfAbsent(HttpHost destination,
+			ClientExecChain proxy) {
+		return decorator.setProxyIfAbsent(destination, proxy);
 	}
 
 	public synchronized boolean removeProxy(HttpHost destination,
@@ -145,8 +163,8 @@ public class HttpClientFactory implements Closeable {
 	}
 
 	public synchronized CloseableHttpClient createHttpClient(String source, CredentialsProvider credentials) {
-		ManagedHttpCacheStorage storage = new ManagedHttpCacheStorage(
-				getDefaultCacheConfig());
+		CacheConfig cache = getDefaultCacheConfig();
+		ManagedHttpCacheStorage storage = new ManagedHttpCacheStorage(cache);
 		List<BasicHeader> headers = new ArrayList<BasicHeader>();
 		headers.add(new BasicHeader("Origin", getOrigin(source)));
 		headers.addAll(getAdditionalRequestHeaders());
@@ -156,6 +174,7 @@ public class HttpClientFactory implements Closeable {
 						.decorateMainExec(mainExec));
 			}
 		}.setResourceFactory(entryFactory).setHttpCacheStorage(storage)
+				.setCacheConfig(cache)
 				.setConnectionManager(getConnectionManager())
 				.setConnectionReuseStrategy(reuseStrategy)
 				.setKeepAliveStrategy(keepAliveStrategy).useSystemProperties()
@@ -266,6 +285,6 @@ public class HttpClientFactory implements Closeable {
 				.setWeakETagOnPutDeleteAllowed(true)
 				.setHeuristicCachingEnabled(true)
 				.setHeuristicDefaultLifetime(60 * 60 * 24)
-				.setMaxObjectSize(64000).build();
+				.setMaxObjectSize(1024 * 1024).build();
 	}
 }

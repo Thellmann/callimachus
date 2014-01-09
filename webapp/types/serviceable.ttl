@@ -23,13 +23,13 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
+<> a <RdfSchemaGraph>;
     foaf:primaryTopic <Serviceable>.
 
 <Serviceable> a owl:Class;
     rdfs:label "Serviceable";
     rdfs:comment "All resources served by this host";
-    owl:equivalentClass </callimachus/Serviceable>;
+    owl:equivalentClass </callimachus/Serviceable>, </callimachus/1.0/types/Serviceable>;
     rdfs:isDefinedBy <../../ontology>.
 
 :GetHistory rdfs:subClassOf msg:Message;
@@ -255,7 +255,7 @@ skos:editorialNote a owl:AnnotationProperty.
 # used by permissions.xhtml
 :GetRdfTypes rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:literalSet; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "GET";
     calli:query "rdftype";
     calli:requires calli:administrator;
@@ -279,7 +279,8 @@ skos:editorialNote a owl:AnnotationProperty.
             }
             return concepts;
         }
-        return addConcepts(this.getClass(), new java.util.TreeSet(), new java.util.HashSet());
+        var set = addConcepts(this.getClass(), new java.util.TreeSet(), new java.util.HashSet());
+        return set.toArray().join('\\r\\n');
     """.
 
 :PostPermissions rdfs:subClassOf msg:Message;
@@ -314,7 +315,7 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
-    calli:imports <SchemaGraph>;
+    calli:imports <RdfSchemaGraph>;
     calli:script """
         var before = this.calliAdministrator.empty;
         var ret = proceed();
@@ -326,7 +327,7 @@ skos:editorialNote a owl:AnnotationProperty.
         }
         var con = this.objectConnection;
         var of = con.objectFactory;
-        con.addDesignation(of.createObject(con.getVersionBundle()), SchemaGraph);
+        con.addDesignation(of.createObject(con.getVersionBundle()), RdfSchemaGraph);
         con.recompileSchemaOnClose();
         return ret;
     """.

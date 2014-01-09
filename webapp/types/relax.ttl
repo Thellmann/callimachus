@@ -23,14 +23,14 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
+<> a <RdfSchemaGraph>;
     foaf:primaryTopic <Relax>.
 
 <Relax> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
     rdfs:label "RELAX" ;
     rdfs:comemnt "RELAX NG is a schema language for XML";
-    owl:equivalentClass </callimachus/Relax>;
+    owl:equivalentClass </callimachus/Relax>, </callimachus/1.0/types/Relax>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
@@ -60,7 +60,7 @@
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <File>;
+    calli:imports foaf:Document;
     calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
@@ -70,7 +70,8 @@
         if (!obj)
             throw new BadRequest("Missing location");
 
-        obj = con.addDesignation(obj, this.toString()) ;
+        obj = con.addDesignation(obj, this.toString());
+        obj = con.addDesignation(obj, Document);
 
         //# add the label
         var fileName = location.resource.localName;
@@ -142,7 +143,8 @@
 :sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Validate;
     rdfs:range xsd:string;
-    calli:header "Content-Location".
+    calli:header "Content-Location";
+    calli:type "text/uri-list".
 
 :xmlToValidate a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Validate;

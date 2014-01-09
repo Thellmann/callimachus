@@ -33,7 +33,7 @@
 # Author: James Leigh <james@3roundstones.com>
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
-PATH=/sbin:/usr/sbin:/bin:/usr/bin
+PATH="$PATH:/sbin:/usr/sbin:/bin:/usr/bin"
 
 # resolve links - $0 may be a softlink
 PRG="$0"
@@ -83,7 +83,7 @@ if [ -r "$CONFIG" ]; then
 fi
 
 PIDFILE="$BASEDIR/run/$NAME.pid"
-SCRIPTNAME=/etc/init.d/$NAME
+SCRIPTNAME=$0
 
 MAINCLASS=org.callimachusproject.Server
 MONITORCLASS=org.callimachusproject.ServerMonitor
@@ -361,6 +361,7 @@ if [ -r "$JAVA_HOME/lib/security/cacerts" ] && ( [ ! -e "$SSL" ] || ( [ -r "$SSL
     echo $$$(date +%s)$RANDOM | awk '{print $1}' > "$SSL.password"
   fi
   cp "$JAVA_HOME/lib/security/cacerts" "$BASEDIR/etc/truststore"
+  chmod ug+rw "$BASEDIR/etc/truststore"
   "$KEYTOOL" -storepasswd -new "$(cat "$SSL.password")" -keystore "$BASEDIR/etc/truststore" -storepass "changeit"
   echo "javax.net.ssl.trustStore=etc/truststore" >> "$SSL"
   echo "javax.net.ssl.trustStorePassword=$(cat "$SSL.password")" >> "$SSL"
@@ -607,22 +608,24 @@ do_start()
           else
             log_warning_msg "Could not import $cert into $KEYSTORE"
           fi
-        elif "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep "^$ALIAS," |grep -q "PrivateKeyEntry," ; then
-          if [ "$cert" != "etc/$ALIAS.cer" ] ; then
-            "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-            if [ $? = 0 ] ; then
-              log_success_msg "Imported certificate reply $cert into $KEYSTORE"
-            else
-              log_warning_msg "Could not import certificate reply $cert into $KEYSTORE"
-            fi
-          fi
         elif [ "$cert" -nt "$KEYSTORE" ] ; then
-          "$KEYTOOL" -delete -alias "$ALIAS" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-          if [ $? = 0 ] ; then
-            log_success_msg "Imported $cert into $KEYSTORE"
+            if "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep "^$ALIAS," |grep -q "PrivateKeyEntry," ; then
+              if [ "$cert" != "etc/$ALIAS.cer" ] ; then
+                "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+                if [ $? = 0 ] ; then
+                  log_success_msg "Imported certificate reply $cert into $KEYSTORE"
+                else
+                  log_warning_msg "Could not import certificate reply $cert into $KEYSTORE"
+                fi
+              fi
           else
-            log_warning_msg "Could not import $cert into $KEYSTORE"
+              "$KEYTOOL" -delete -alias "$ALIAS" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+              "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+              if [ $? = 0 ] ; then
+                log_success_msg "Imported $cert into $KEYSTORE"
+              else
+                log_warning_msg "Could not import $cert into $KEYSTORE"
+              fi
           fi
         fi
       fi

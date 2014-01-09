@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ThreadFactory;
 
+import javax.management.InstanceNotFoundException;
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
@@ -58,8 +59,8 @@ import org.callimachusproject.management.JVMSummary;
 import org.callimachusproject.management.JVMSummaryMXBean;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.CalliRepositoryMXBean;
-import org.callimachusproject.server.WebServerMXBean;
 import org.callimachusproject.server.WebServer;
+import org.callimachusproject.server.WebServerMXBean;
 
 /**
  * Command line tool for monitoring the server.
@@ -153,17 +154,19 @@ public class ServerMonitor {
 		try {
 			Command line = commands.parse(args);
 			if (line.isParseError()) {
-				line.printParseError();
-				System.exit(2);
-				return;
-			} else if (line.has("help")) {
-				line.printHelp();
-				System.exit(0);
-				return;
-			} else if (line.has("version")) {
-				line.printCommandName();
-				System.exit(0);
-				return;
+				if (line.has("help")) {
+					line.printHelp();
+					System.exit(0);
+					return;
+				} else if (line.has("version")) {
+					line.printCommandName();
+					System.exit(0);
+					return;
+				} else {
+					line.printParseError();
+					System.exit(2);
+					return;
+				}
 			} else {
 				setPidFile(line.get("pid"));
 				reset = line.has("reset");
@@ -209,12 +212,20 @@ public class ServerMonitor {
 				}
 				info("Callimachus server has stopped");
 				return true;
+			} catch (UndeclaredThrowableException e) {
+				if (e.getCause() instanceof InstanceNotFoundException) {
+					// remote MBean has unregistered
+					info("Callimachus server has been destroyed");
+					return true;
+				}
+				throw e;
 			} catch (UnmarshalException e) {
-				if (!(e.getCause() instanceof IOException))
-					throw e;
-				// remote JVM has terminated
-				info("Callimachus server has shutdown");
-				return true;
+				if (e.getCause() instanceof IOException) {
+					// remote JVM has terminated
+					info("Callimachus server has shutdown");
+					return true;
+				}
+				throw e;
 			}
 		} catch (UndeclaredThrowableException e) {
 			throw e.getCause();

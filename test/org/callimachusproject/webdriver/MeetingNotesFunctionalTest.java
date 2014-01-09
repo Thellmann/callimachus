@@ -43,11 +43,10 @@ public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
 				.with("R & D", "Research and Development journal").createAs();
 		browser.focusInTopWindow();
 		logger.info("Creating note");
-		browser.click(By.cssSelector("i.icon-cog"));
 		browser.click(By.linkText("Create a new note"));
 		browser.focusInTopWindow();
 		browser.type(By.id("comment"), "Testing callimachus");
-		browser.click(By.cssSelector("button[type=submit]"));
+		browser.click(By.cssSelector("button.btn-success"));
 		browser.focusInTopWindow();
 		browser.click(By.linkText("Edit"));
 		browser.focusInTopWindow();
@@ -56,9 +55,9 @@ public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
 		browser.focusInFrame("topics");
 		browser.type(By.id("label"), "Callimachus Tag");
 		browser.type(By.id("comment"), "Anything about Callimachus");
-		browser.click(By.cssSelector("button[type=submit]"));
+		browser.click(By.xpath("//button[text()='Create']"));
 		browser.waitForFrameToClose("topics");
-		browser.click(By.cssSelector("button[type=submit]"));
+		browser.click(By.xpath("//button[text()='Save']"));
 		browser.focusInTopWindow();
 		browser.click(By.linkText("Callimachus Tag"));
 	}

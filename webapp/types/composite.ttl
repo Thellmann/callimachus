@@ -23,13 +23,13 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
+<> a <RdfSchemaGraph>;
     foaf:primaryTopic <Composite>.
 
 <Composite> a owl:Class;
     rdfs:label "Composite";
     rdfs:subClassOf <Serviceable>, calli:Composite;
-    owl:equivalentClass </callimachus/Composite>;
+    owl:equivalentClass </callimachus/Composite>, </callimachus/1.0/types/Composite>;
     rdfs:isDefinedBy <../../ontology>.
 
 ################################
@@ -309,7 +309,8 @@
 :type a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostFactoryCreate;
     rdfs:range xsd:string;
-    calli:header "Content-Type".
+    calli:header "Content-Type";
+    calli:type "text/plain".
 
 ################################
 # Delete

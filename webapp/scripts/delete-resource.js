@@ -22,7 +22,7 @@ window.calli.deleteResource = function(event, redirect) {
             if (prompt && !confirm(prompt))
                 return;
         }
-    
+
         var url = calli.getPageUrl();
         if (form.length) {
             url = calli.getFormAction(form[0]);
@@ -30,16 +30,15 @@ window.calli.deleteResource = function(event, redirect) {
             form = $(document);
         }
         var de = jQuery.Event("calliDelete");
-        de.resource = url.replace(/\?.*/,'');
-        de.location = url;
+        de.location = event.location || url;
+        de.resource = event.resource || de.location.replace(/\?.*/,'');
         form.trigger(de);
         if (!de.isDefaultPrevented()) {
-            var xhr = $.ajax({ type: "DELETE", url: de.location, dataType: "text", beforeSend: function(xhr){
+            var xhr = $.ajax({ type: "DELETE", url: de.location, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
                 var lastmod = getLastModified();
                 if (lastmod) {
                     xhr.setRequestHeader("If-Unmodified-Since", lastmod);
                 }
-                calli.withCredentials(xhr);
             }, complete: function(xhr) {
                 try {
                     if (200 <= xhr.status && xhr.status < 300) {
@@ -48,7 +47,7 @@ window.calli.deleteResource = function(event, redirect) {
                         event.resource = de.resource;
                         event.location = redirect;
                         var contentType = xhr.getResponseHeader('Content-Type');
-                        if (!event.location && contentType != null && contentType.indexOf('text/uri-list') == 0) {
+                        if (!event.location && contentType !== null && contentType.indexOf('text/uri-list') === 0) {
                             event.location = xhr.responseText;
                         }
                         if (!event.location && window.location.pathname.match(/\/$/)) {
@@ -56,7 +55,7 @@ window.calli.deleteResource = function(event, redirect) {
                         } else if (!event.location) {
                             event.location = './';
                         }
-                        form.trigger(event)
+                        form.trigger(event);
                         if (!event.isDefaultPrevented()) {
                             if (event.location) {
                                 window.location.replace(event.location);

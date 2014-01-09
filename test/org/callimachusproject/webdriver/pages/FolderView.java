@@ -54,7 +54,7 @@ public class FolderView extends CalliPage {
 
 	public DatasourceCreate openDatasourceCreate() {
 		browser.click(By.id("create-menu"));
-		browser.clickHiddenLink(".dropdown-menu a[href$=\"Datasource\"]");
+		browser.clickHiddenLink(".dropdown-menu a[href$=\"RdfDatasource\"]");
 		return page(DatasourceCreate.class);
 	}
 
@@ -76,14 +76,14 @@ public class FolderView extends CalliPage {
 
 	public ImportPage openImportPage() {
 		browser.focusInTopWindow();
-		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
 		browser.click(By.linkText("Import folder contents"));
 		return page(ImportPage.class);
 	}
 
 	public void assertLayout() {
 		int bottom = browser.getPositionBottom(By.linkText("Callimachus"));
-		int cogTop = browser.getPositionTop(By.cssSelector("i.icon-cog"));
+		int cogTop = browser.getPositionTop(By.cssSelector("button.navbar-btn.dropdown-toggle"));
 		Assert.assertTrue(bottom > cogTop);
 		Assert.assertEquals(browser.getText(By.id("totalEntries")), browser.getText(By.id("totalResults")));
 		for (String text : browser.getTextOfElements(By.cssSelector("table tbody tr td:last-child"))) {

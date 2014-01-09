@@ -14,4 +14,16 @@
 <implementation type="calli:decode-text"
 		class-name="org.callimachusproject.xproc.DecodeTextStep" />
 
+<implementation type="calli:serialize-json"
+		class-name="org.callimachusproject.xproc.SerializeJsonStep" />
+
+<implementation type="calli:deserialize-json"
+		class-name="org.callimachusproject.xproc.DeserializeJsonStep" />
+
+<implementation type="calli:serialize-css"
+		class-name="org.callimachusproject.xproc.SerializeCascadingStyleSheetStep" />
+
+<implementation type="calli:deserialize-css"
+		class-name="org.callimachusproject.xproc.DeserializeCascadingStyleSheetStep" />
+
 </xproc-config>

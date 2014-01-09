@@ -4,6 +4,8 @@ import static java.net.URLDecoder.decode;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -223,10 +225,18 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	private static String getBuild() {
 		String build = System.getProperty("org.callimachusproject.test.build");
-		if (build == null) {
-			return Version.getInstance().getVersionCode();
-		} else {
+		String implementationVersion = Version.class.getPackage()
+				.getImplementationVersion();
+		if (build != null) {
 			return build;
+		} else if (implementationVersion != null) {
+			return implementationVersion;
+		} else {
+			RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+			long startTime = bean.getStartTime();
+			long code = startTime % (1000 * 60 * 60 * 24 * 30) / 1000 / 60;
+			String version = Version.getInstance().getVersionCode();
+			return version + "+" + Long.toHexString(code);
 		}
 	}
 
@@ -315,7 +325,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			WebResource home = new WebResource(url);
 			home.get("text/html");
 			home.ref("/callimachus/scripts.js").get("text/javascript");
-			home.ref("/callimachus/1.0/styles/callimachus.less?less").get(
+			home.ref("/callimachus/1.3/styles/callimachus.less?less").get(
 					"text/css");
 		}
 		driver = createWebDriver();

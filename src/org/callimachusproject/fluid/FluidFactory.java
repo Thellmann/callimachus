@@ -16,7 +16,6 @@
  */
 package org.callimachusproject.fluid;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +23,7 @@ import javax.script.ScriptException;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.callimachusproject.fluid.consumers.BooleanMessageWriter;
+import org.callimachusproject.fluid.consumers.BufferedImageWriter;
 import org.callimachusproject.fluid.consumers.ByteArrayMessageWriter;
 import org.callimachusproject.fluid.consumers.ByteArrayStreamMessageWriter;
 import org.callimachusproject.fluid.consumers.DOMMessageWriter;
@@ -48,6 +48,7 @@ import org.callimachusproject.fluid.consumers.URIListWriter;
 import org.callimachusproject.fluid.consumers.VoidWriter;
 import org.callimachusproject.fluid.consumers.XMLEventMessageWriter;
 import org.callimachusproject.fluid.producers.BooleanMessageReader;
+import org.callimachusproject.fluid.producers.BufferedImageReader;
 import org.callimachusproject.fluid.producers.ByteArrayMessageReader;
 import org.callimachusproject.fluid.producers.ByteArrayStreamMessageReader;
 import org.callimachusproject.fluid.producers.DOMMessageReader;
@@ -60,18 +61,15 @@ import org.callimachusproject.fluid.producers.HttpEntityReader;
 import org.callimachusproject.fluid.producers.HttpMessageReader;
 import org.callimachusproject.fluid.producers.InputStreamBodyReader;
 import org.callimachusproject.fluid.producers.ModelMessageReader;
-import org.callimachusproject.fluid.producers.NetURIReader;
 import org.callimachusproject.fluid.producers.PrimitiveBodyReader;
 import org.callimachusproject.fluid.producers.RDFObjectURIReader;
 import org.callimachusproject.fluid.producers.ReadableBodyReader;
 import org.callimachusproject.fluid.producers.ReadableByteChannelBodyReader;
 import org.callimachusproject.fluid.producers.StringBodyReader;
 import org.callimachusproject.fluid.producers.TupleMessageReader;
-import org.callimachusproject.fluid.producers.URIReader;
-import org.callimachusproject.fluid.producers.URLReader;
 import org.callimachusproject.fluid.producers.VoidReader;
 import org.callimachusproject.fluid.producers.XMLEventMessageReader;
-import org.openrdf.model.URI;
+import org.callimachusproject.fluid.producers.base.URIListReader;
 import org.openrdf.repository.object.ObjectConnection;
 
 /**
@@ -114,9 +112,10 @@ public class FluidFactory {
 		consumers.add(new FormMapMessageWriter());
 		consumers.add(new FormStringMessageWriter());
 		consumers.add(new HttpEntityWriter());
-		consumers.add(new URIListWriter<URI>(URI.class));
-		consumers.add(new URIListWriter<URL>(URL.class));
-		consumers.add(new URIListWriter<java.net.URI>(java.net.URI.class));
+		consumers.add(new BufferedImageWriter());
+		consumers.add(URIListWriter.RDF_URI);
+		consumers.add(URIListWriter.NET_URL);
+		consumers.add(URIListWriter.NET_URI);
 		try {
 			consumers.add(new DocumentFragmentMessageWriter());
 			consumers.add(new DOMMessageWriter());
@@ -126,9 +125,9 @@ public class FluidFactory {
 		} catch (ScriptException e) {
 			throw new AssertionError(e);
 		}
-		producers.add(new URIReader());
-		producers.add(new URLReader());
-		producers.add(new NetURIReader());
+		producers.add(URIListReader.RDF_URI);
+		producers.add(URIListReader.NET_URL);
+		producers.add(URIListReader.NET_URI);
 		producers.add(new RDFObjectURIReader());
 		producers.add(new ModelMessageReader());
 		producers.add(new GraphMessageReader());
@@ -150,6 +149,7 @@ public class FluidFactory {
 		producers.add(new DOMMessageReader());
 		producers.add(new DocumentFragmentMessageReader());
 		producers.add(new HttpEntityReader());
+		producers.add(new BufferedImageReader());
 	}
 
 	public FluidBuilder builder() {

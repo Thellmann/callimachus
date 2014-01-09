@@ -465,7 +465,17 @@ public class ResourceOperation {
 	}
 
 	public Fluid getBody() {
-		String mediaType = request.getHeader("Content-Type");
+		Header[] headers = request.getHeaders("Content-Type");
+		String[] mediaType;
+		if (headers == null || headers.length == 0) {
+			mediaType = new String[] { "text/plain",
+					"application/octet-stream", "*/*" };
+		} else {
+			mediaType = new String[headers.length];
+			for (int i = 0; i < headers.length; i++) {
+				mediaType[i] = headers[i].getValue();
+			}
+		}
 		String location = request.getResolvedHeader("Content-Location");
 		if (location == null) {
 			location = request.getIRI();
@@ -664,7 +674,7 @@ public class ResourceOperation {
 	private Method findMethod() throws RepositoryException {
 		Method method = findMethodIfPresent(request.getMethod(), request.isMessageBody(), null);
 		if (method == null)
-			throw new MethodNotAllowed("No such method for this resource");
+			throw new MethodNotAllowed("No such method for " + request.getIRI());
 		return method;
 	}
 
@@ -672,7 +682,7 @@ public class ResourceOperation {
 			throws RepositoryException {
 		Method method = findMethodIfPresent(req_method, request.isMessageBody(), isResponsePresent);
 		if (method == null)
-			throw new MethodNotAllowed("No such method for this resource");
+			throw new MethodNotAllowed("No such method for " + request.getIRI());
 		return method;
 	}
 

@@ -18,57 +18,55 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
 <body>
     {calli:body-attributes()}
     <div class="until-navbar-large">
-        <div class="navbar navbar-static-top hidden-iframe">
-            <header class="navbar-inner">
-                <div class="container">
-                    {calli:home-href(<a class="brand">Callimachus</a>)}
-                    <menu type="toolbar" class="nav pull-right">
-                        <li class="hidden-login">
-                            {calli:login-href(<a>Sign in</a>)}
-                        </li>
-                        <li class="hidden-logout dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="icon-cog"></i>
-                                <i class="caret"></i>
-                            </a>
-                            <menu type="list" class="dropdown-menu">
-                                <li>{calli:folder-href(<a>Home folder</a>)}</li>
-                                <li>{calli:changes-href(<a>Recent changes</a>)}</li>
-                                <li class="divider"></li>
-                                <li><a href="http://callimachusproject.org/">About Callimachus</a></li>
-                                <li><a href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting started</a></li>
-                                <li><a href="http://groups.google.com/group/callimachus-discuss">Send feedback</a></li>
-                                <li class="divider"></li>
-                                {calli:head-links(<li><a /></li>,<li class="divider" />)}
-                                <li>{calli:whatlinkshere-href(<a>What links here</a>)}</li>
-                                <li>{calli:relatedchanges-href(<a>Related changes</a>)}</li>
-                                <li>{calli:permissions-href(<a>Permissions</a>)}</li>
-                                <li>{calli:introspect-href(<a>Introspect resource</a>)}</li>
-                                <li><a href="javascript:print()">Print this page</a></li>
-                                <li class="divider"></li>
-                                <li>{calli:profile-href(<a>Account</a>)}</li>
-                                <li>{calli:logout-href(<a>Sign out</a>)}</li>
-                            </menu>
-                        </li>
-                    </menu>
-                    <div class="navbar-search pull-right hidden-logout">{calli:lookup-form('Lookup...')}</div>
+        <nav class="navbar navbar-default navbar-static-top hidden-iframe">
+            <header class="container">
+                <div class="pull-left">
+                    {calli:home-href(<a class="navbar-brand">Callimachus</a>)}
                 </div>
+                {calli:login-href(<a class="btn btn-default navbar-btn pull-right hidden-login">Sign in</a>)}
+                <div class="btn-group pull-right hidden-logout">
+                    <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
+                        <span class="sr-only">Main menu</span>
+                        <span class="glyphicon glyphicon-align-justify"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>{calli:folder-href(<a>Home folder</a>)}</li>
+                        <li>{calli:changes-href(<a>Recent changes</a>)}</li>
+                        <li class="divider"></li>
+                        <li>{calli:callimachus-about-href(<a>About Callimachus</a>)}</li>
+                        <li>{calli:callimachus-getting-started-href(<a>Getting started</a>)}</li>
+                        <li>{calli:callimachus-feedback-href(<a>Send feedback</a>)}</li>
+                        <li class="divider"></li>
+                        {calli:head-links(<li><a /></li>,<li class="divider" />)}
+                        <li>{calli:whatlinkshere-href(<a>What links here</a>)}</li>
+                        <li>{calli:relatedchanges-href(<a>Related changes</a>)}</li>
+                        <li>{calli:permissions-href(<a>Permissions</a>)}</li>
+                        <li>{calli:introspect-href(<a>Introspect resource</a>)}</li>
+                        <li><a href="javascript:print()">Print this page</a></li>
+                        <li class="divider"></li>
+                        <li>{calli:profile-href(<a>Account</a>)}</li>
+                        <li>{calli:logout-href(<a>Sign out</a>)}</li>
+                    </ul>
+                </div>
+                <div class="col-xs-4 pull-right hidden-logout">{calli:lookup-form('Lookup...')}</div>
             </header>
-        </div>
+        </nav>
         <div class="container">
-            <nav class="breadcrumb hidden-iframe">{calli:breadcrumb-links(<a class="muted"/>, <span class="divider">&#187;</span>, <span class="active"/>)}</nav>
-            {calli:body-hgroup()}
-            {calli:body-sidebar(<div class="sidebar pull-right" />)}
-            {calli:activate-nav(<nav class="hidden-logout hidden-iframe nav-tabs">
-                {calli:view-href(<a tabindex="1" onclick="location.replace(href);return false">View</a>)}
-                {calli:edit-href(<a tabindex="2" onclick="location.replace(href);return false">Edit</a>)}
-                {calli:discussion-href(<a tabindex="3" onclick="location.replace(href);return false">Discussion</a>)}
-                {calli:describe-href(<a tabindex="4" onclick="location.replace(href);return false">Describe</a>)}
-                {calli:history-href(<a tabindex="5" onclick="location.replace(href);return false">History</a>)}
+            <ol class="breadcrumb navbar-left hidden-iframe">{calli:breadcrumb-links(<li><a/></li>, <li class="active"/>)}</ol>
+            {calli:activate-nav(<nav class="nav-tabs clearfix hidden-logout hidden-iframe">
+                <ul class="nav nav-tabs navbar-right" style="border-bottom:none">
+                    <li>{calli:view-href(<a tabindex="1" onclick="location.replace(href);return false">View</a>)}</li>
+                    <li>{calli:edit-href(<a tabindex="2" onclick="location.replace(href);return false">Edit</a>)}</li>
+                    <li>{calli:discussion-href(<a tabindex="3" onclick="location.replace(href);return false">Discussion</a>)}</li>
+                    <li>{calli:describe-href(<a tabindex="4" onclick="location.replace(href);return false">Describe</a>)}</li>
+                    <li>{calli:history-href(<a tabindex="5" onclick="location.replace(href);return false">History</a>)}</li>
+                </ul>
             </nav>)}
-
+            <div class="clearfix" />
             <div class="tab-content">
-                {calli:error-alert(<div class="alert alert-error alert-block">
+                {calli:body-hgroup()}
+                {calli:body-sidebar(<div class="sidebar" />)}
+                {calli:error-alert(<div class="alert alert-danger alert-dismissable alert-block">
                     <button type="button" class="close" data-dismiss="alert">×</button>
                     <h4>Oops!</h4>
                 </div>)}
@@ -80,8 +78,8 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
     <div class="navbar navbar-large navbar-relative-bottom hidden-iframe">
         <footer class="navbar-inner">
             <div class="container">
-                {calli:generator-p(<p class="pull-right navbar-text" />)}
-                {calli:lastmod-time(<p class="navbar-text">This resource was last modified at <time class="abbreviated"/></p>)}
+                {calli:generator-p(<p class="navbar-right navbar-text" />)}
+                {calli:lastmod-time(<p class="navbar-text">This resource was last modified at <time class="datetime-local"/></p>)}
             </div>
         </footer>
     </div>

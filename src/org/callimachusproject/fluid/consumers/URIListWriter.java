@@ -33,26 +33,45 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.server.helpers.ReadableHttpEntityChannel;
 
 /**
  * Writes text/uri-list files.
  */
-public class URIListWriter<URI> implements Consumer<URI> {
+public abstract class URIListWriter<URI> implements Consumer<URI> {
 	private static final Charset USASCII = Charset.forName("US-ASCII");
 	private StringBodyWriter delegate = new StringBodyWriter();
 	private Class<URI> componentType;
+
+	public static URIListWriter<org.openrdf.model.URI> RDF_URI = new URIListWriter<org.openrdf.model.URI>(
+			org.openrdf.model.URI.class) {
+		protected String toString(org.openrdf.model.URI result) {
+			return result.stringValue();
+		}
+	};
+	public static URIListWriter<URL> NET_URL = new URIListWriter<URL>(URL.class) {
+		protected String toString(URL result) {
+			return result.toExternalForm();
+		}
+	};
+	public static URIListWriter<java.net.URI> NET_URI = new URIListWriter<java.net.URI>(
+			java.net.URI.class) {
+		protected String toString(java.net.URI result) {
+			return result.toASCIIString();
+		}
+	};
 
 	public URIListWriter(Class<URI> componentType) {
 		this.componentType = componentType;
@@ -157,11 +176,11 @@ public class URIListWriter<URI> implements Consumer<URI> {
 			}
 		}
 		writer.flush();
+		if (out.size() == 0)
+			return null;
 		return out.toByteArray();
 	}
 
-	protected String toString(URI result) {
-		return result.toString();
-	}
+	protected abstract String toString(URI result);
 
 }

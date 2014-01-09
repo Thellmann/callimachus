@@ -13,7 +13,7 @@ $('form[method="PUT"]').each(function(event){
         var xhr = $.ajax({
             type: 'HEAD',
             url: action,
-            beforeSend: calli.withCredentials,
+            xhrFields: calli.withCredentials,
             success: function() {
                 calli.etag(action, xhr.getResponseHeader('ETag'));
             }
@@ -39,18 +39,18 @@ $('form[method="PUT"]').each(function(event){
                 contentType: form.getAttribute("enctype"),
                 processData: false,
                 data: se.payload,
+                xhrFields: calli.withCredentials,
                 beforeSend: function(xhr) {
                     var etag = calli.etag(action);
                     if (etag) {
                         xhr.setRequestHeader('If-Match', etag);
                     }
-                    calli.withCredentials(xhr);
                 },
                 success: function() {
                     try {
                         var redirect = null;
                         var contentType = xhr.getResponseHeader('Content-Type');
-                        if (contentType != null && contentType.indexOf('text/uri-list') == 0) {
+                        if (contentType !== null && contentType.indexOf('text/uri-list') === 0) {
                             redirect = xhr.responseText;
                         }
                         if (!redirect) {
@@ -61,7 +61,7 @@ $('form[method="PUT"]').each(function(event){
                         }
                         var event = $.Event("calliRedirect");
                         event.cause = se;
-                        event.resource = redirect;
+                        event.resource = se.resource;
                         event.location = redirect + "?view";
                         $(form).trigger(event);
                         if (!event.isDefaultPrevented()) {

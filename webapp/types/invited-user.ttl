@@ -8,11 +8,12 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
+<> a <RdfSchemaGraph>;
     foaf:primaryTopic <InvitedUser>.
 
 <InvitedUser> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:User;
+    owl:equivalentClass </callimachus/1.0/types/InvitedUser>;
     rdfs:label "Invited User";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

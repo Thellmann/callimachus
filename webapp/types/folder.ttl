@@ -25,14 +25,14 @@
 @prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
+<> a <RdfSchemaGraph>;
     foaf:primaryTopic <Folder>.
 
 <Folder> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Composite>, <PURL>, calli:Folder;
+    rdfs:subClassOf <Composite>, <Purl>, calli:Folder;
     rdfs:label "Folder";
     rdfs:comment "A folder of resources";
-    owl:equivalentClass </callimachus/Folder>;
+    owl:equivalentClass </callimachus/Folder>, </callimachus/1.0/types/Folder>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
@@ -87,12 +87,14 @@
 :slug a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostFileSlug;
     rdfs:range xsd:string;
-    calli:header "Slug".
+    calli:header "Slug";
+    calli:type "text/plain".
 
 :contentType a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostFileSlug;
     rdfs:range xsd:string;
-    calli:header "Content-Type".
+    calli:header "Content-Type";
+    calli:type "text/plain".
 
 :content a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostFileSlug;
@@ -291,7 +293,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     rdfs:subClassOf [owl:onProperty :uploadFileClass; owl:hasValue <File>];
-    rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <SchemaGraph>];
+    rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <RdfSchemaGraph>];
     calli:method "PUT";
     calli:query "archive";
     calli:requires calli:administrator;
@@ -370,8 +372,7 @@
                     con.recompileSchemaOnClose();
                 }
             } catch (e) {
-                println("Could not import " + name + " a " + type + " into " + container);
-                throw e;
+                throw new BadRequest("Could not import " + name + " a " + type + " into " + container, e.javaException);
             } finally {
                 entryStream.close();
             }

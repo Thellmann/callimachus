@@ -20,7 +20,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
             var xhr = $.ajax({
                 type: 'HEAD',
                 url: action,
-                beforeSend: calli.withCredentials,
+                xhrFields: calli.withCredentials,
                 success: function() {
                     calli.etag(action, xhr.getResponseHeader('ETag'));
                 }
@@ -46,19 +46,21 @@ $('form[enctype="application/sparql-update"]').each(function() {
 function submitRDFForm(form, resource, stored) {
     var waiting = calli.wait();
     try {
-        var revised = readRDF(form);
+        var parser = new RDFaParser();
+        var uri = parser.parseURI(parser.getNodeBase(form)).resolve(resource);
+        var revised = parseRDF(parser, uri, form);
         var diff = diffTriples(stored, revised);
         var removed = diff.removed;
         var added = diff.added;
-        var hash, triple;
-        for (hash in removed) {
-            addBoundedDescription(removed[hash], stored, removed, added);
+        for (var rhash in removed) {
+            addBoundedDescription(removed[rhash], stored, removed, added);
         }
-        for (hash in added) {
-            addBoundedDescription(added[hash], revised, added, removed);
+        for (var ahash in added) {
+            addBoundedDescription(added[ahash], revised, added, removed);
         }
         var se = $.Event("calliSubmit");
-        se.resource = resource;
+        se.resource = uri;
+        se.location = calli.getFormAction(form);
         se.payload = asSparqlUpdate(removed, added);
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
@@ -77,7 +79,7 @@ function submitRDFForm(form, resource, stored) {
                     }
                     var event = $.Event("calliRedirect");
                     event.cause = se;
-                    event.resource = redirect;
+                    event.resource = se.resource;
                     event.location = redirect;
                     $(form).trigger(event);
                     if (!event.isDefaultPrevented()) {
@@ -100,12 +102,16 @@ function submitRDFForm(form, resource, stored) {
 }
 
 function readRDF(form) {
+    var parser = new RDFaParser();
+    var base = parser.getNodeBase(form);
+    var resource = $(form).attr("about") || $(form).attr("resource");
+    var formSubject = resource ? parser.parseURI(base).resolve(resource) : base;
+    return parseRDF(parser, formSubject, form);
+}
+
+function parseRDF(parser, formSubject, form) {
     var 
-        parser = new RDFaParser(),
         writer = new UpdateWriter(),
-        resource = $(form).attr("about") || $(form).attr("resource"),
-        base = parser.getNodeBase(form),
-        formSubject = resource ? parser.parseURI(base).resolve(resource) : base,
         formHash = formSubject + "#",
         triples = {},
         usedBlanks = {},
@@ -221,12 +227,11 @@ function patchData(form, data, callback) {
         type = "application/sparql-update";
     }
     var action = calli.getFormAction(form);
-    var xhr = $.ajax({ type: method, url: action, contentType: type, data: data, dataType: "text", beforeSend: function(xhr){
+    var xhr = $.ajax({ type: method, url: action, contentType: type, data: data, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
         var etag = calli.etag(action);
         if (etag) {
             xhr.setRequestHeader("If-Match", etag);
         }
-        calli.withCredentials(xhr);
     }, success: function(data, textStatus) {
         calli.etag(action, xhr.getResponseHeader("ETag"));
         callback(data, textStatus, xhr);

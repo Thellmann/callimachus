@@ -7,7 +7,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
+<> a <RdfSchemaGraph>;
     foaf:primaryTopic <DigestManager>.
 
 ################################
@@ -16,7 +16,7 @@
 
 <DigestManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:DigestManager;
-    owl:equivalentClass </callimachus/DigestManager>;
+    owl:equivalentClass </callimachus/DigestManager>, </callimachus/1.0/types/DigestManager>;
     rdfs:label "Digest Manager";
     rdfs:comment "Digest password is the default authentication mechanism in Callimachus";
     rdfs:isDefinedBy <../../ontology>;
@@ -80,7 +80,8 @@
 :openIdCookies a owl:DatatypeProperty;
     rdfs:domain :GetOpenIdProviderReturn;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie".
+    calli:header "Authorization", "Cookie";
+    calli:type "text/plain".
 
 :PostOpenIdProvider rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
@@ -135,7 +136,8 @@
 :cookies a owl:DatatypeProperty;
     rdfs:domain :PostLogin;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie".
+    calli:header "Authorization", "Cookie";
+    calli:type "text/plain".
 
 :loginOptions a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostLogin;

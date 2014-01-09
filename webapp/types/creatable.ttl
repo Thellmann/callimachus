@@ -26,13 +26,13 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
+<> a <RdfSchemaGraph>;
     foaf:primaryTopic <Creatable>.
 
 <Creatable> a owl:Class;
     rdfs:label "Creatable";
     rdfs:subClassOf <Serviceable>;
-    owl:equivalentClass </callimachus/Creatable>;
+    owl:equivalentClass </callimachus/Creatable>, </callimachus/1.0/types/Creatable>;
     rdfs:isDefinedBy <../../ontology>.
 
 :DeleteCreatable owl:intersectionOf ( <editable.ttl#DeleteIfNotUsed>
@@ -127,6 +127,9 @@
                         (sameTerm($mediaType,"application/xslt+xml") || sameTerm($mediaType,"text/xsl"))
                         && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
                     ) || (
+                        (sameTerm($mediaType,"application/java-archive") || sameTerm($mediaType,"application/zip"))
+                        && (sameTerm(?typ2,"application/java-archive") || sameTerm(?typ2,"application/zip"))
+                    ) || (
                         (sameTerm($mediaType,"image/x-png") || sameTerm($mediaType,"image/png"))
                         && (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
                     ) || (
@@ -137,7 +140,7 @@
                 BIND (2 AS ?preference)
             } UNION {
                 # boot strap graphs before calli:mediaType triples are loaded
-                BIND (<GraphDocument> AS ?class)
+                BIND (<RdfTurtle> AS ?class)
                 FILTER sameTerm($mediaType,"text/turtle")
                 FILTER sameTerm($this, <File>)
                 BIND (3 AS ?preference)
@@ -171,6 +174,7 @@
             throw new UnsupportedMediaType("File format is not recognized: " + type + " for " + location);
         var newCopy = template.calliCreateResource(body, type, this.toString(), location);
         newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
+        this.touchRevision(); // FIXME this shouldn't be needed
         return newCopy;
     """.
 
