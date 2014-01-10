@@ -9,11 +9,13 @@ import org.openrdf.annotations.Iri;
 /** PDF file */
 @Iri("http://callimachusproject.org/rdf/2009/framework#PortableDocument")
 public interface PortableDocument {
+	public static final String HAS_PAGE = "http://callimachusproject.org/rdf/2009/framework#hasPage";
+
 	/** Page of the document */
-	@Iri("http://callimachusproject.org/rdf/2009/framework#hasPage")
+	@Iri(HAS_PAGE)
 	Set<PortableDocumentPage> getCalliHasPage();
 	/** Page of the document */
-	@Iri("http://callimachusproject.org/rdf/2009/framework#hasPage")
+	@Iri(HAS_PAGE)
 	void setCalliHasPage(Set<? extends PortableDocumentPage> calliHasPage);
 
 	/** The depiction property is a relationship between a thing and an Image that depicts it */

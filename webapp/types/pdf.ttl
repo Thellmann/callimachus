@@ -36,6 +36,7 @@
     calli:icon <../images/pdf.png>;
     calli:create <../templates/file-create.xhtml>;
     calli:view <../templates/pdf-view.xhtml>;
+    calli:edit <../templates/pdf-edit.xhtml>;
     calli:mediaType "application/pdf".
 
 # GET /document.pdf
@@ -82,6 +83,30 @@
     calli:type "text/plain";
     calli:query "thumbnail".
 
+# GET /document.pdf?outline
+:GetOutline rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PortableDocument>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
+    calli:method "GET";
+    calli:query "outline";
+    calli:requires calli:editor;
+    calli:type "application/rdf+xml", "text/turtle".
+
+# POST /document.pdf?outline
+:PostOutline rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PortableDocument>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "POST";
+    calli:query "outline";
+    calli:requires calli:editor;
+    calli:expect "200-modified";
+    calli:type "text/uri-list".
+
+:outline a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:domain :PostOutline ;
+    rdfs:range <java:org.openrdf.query.GraphQueryResult> ;
+    calli:type "application/rdf+xml", "text/turtle" .
+
 # POST ?create=/callimachus/Pdf
 :PostPdfCreate owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <PortableDocument> ]);
@@ -121,7 +146,7 @@
     calli:method "PUT";
     calli:requires calli:editor.
 
-:stream a owl:DatatypeProperty, owl:FunctionalProperty ;
+:stream a owl:ObjectProperty, owl:FunctionalProperty ;
     rdfs:domain :PutPdf ;
     rdfs:range <java:java.io.InputStream> ;
     calli:type "application/pdf" .

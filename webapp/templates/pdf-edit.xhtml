@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <style type="text/css">
+        #pages a {
+            cursor: move;
+        }
+        #pages img {
+            max-width: 190px;
+        }
+        #pages .dragover img {
+            opacity: 0.5;
+        }
+        #pages button.remove {
+            position: absolute;
+            right: 0;
+        }
+    </style>
+    <script type="text/javascript" src="../scripts/pdf-edit.js"></script>
+</head>
+<body resource="?this">
+    <h1 property="dcterms:title" />
+    <form role="form" method="POST" action="?outline" enctype="application/rdf+xml" resource="?this">
+        <fieldset>
+            <div id="pages" class="sorted row">
+                <a class="col-xs-6 col-sm-4 col-md-3 col-lg-2" rel="calli:hasPage" href="?page" dropzone="copy move s:text/uri-list">
+                    <span property="calli:pageNumber" class="asc hide" />
+                    <button class="remove btn btn-link glyphicon glyphicon-remove"></button>
+                    <span rel="prov:wasQuotedFrom" resource="?wasQuotedFrom" />
+                    <img rel="foaf:depiction" resource="?depiction" src="{?depiction}" draggable="false" />
+                </a>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+                <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            </div>
+        </fieldset>
+    </form>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# portableDocumentOutline.rq
+
+PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+PREFIX prov:<http://www.w3.org/ns/prov#>
+
+CONSTRUCT {
+	$this calli:hasPage ?page .
+	?page calli:pageNumber ?pageNumber .
+	?page prov:wasQuotedFrom ?wasQuotedFrom
+} WHERE {
+	$this calli:hasPage ?page .
+	?page calli:pageNumber ?pageNumber .
+	OPTIONAL {
+		?page prov:wasQuotedFrom ?wasQuotedFrom
+	}
+}
