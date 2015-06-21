@@ -1,0 +1,1 @@
+Moved to http://callimachusproject.org/callimachus-reference#Callimachus_REST_API
